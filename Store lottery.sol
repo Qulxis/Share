@@ -119,8 +119,8 @@ contract Lottery{
     
         iterator = players.length;
         for (addy in playerList){
-            if (players[addy].index > index){
-                players[addy].index = players[addy].index - 1;
+            if (players[addy].index > indx){
+                players[addy].index = players[addy].indx - 1;
             }
         }
         }
