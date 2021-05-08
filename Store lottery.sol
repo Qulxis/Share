@@ -95,7 +95,7 @@ contract Lottery{
     
     function resetLottery() private {
         // clear player mapping
-        for (player in players){
+        for (player in playerList){
             delete players[player];
         }
         
