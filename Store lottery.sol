@@ -1,3 +1,9 @@
+//Lottery Example: By Andrew Xavier
+//Rules: 
+//1. Each person can only enter once, or must withdraw and then re-enter to change their amount.
+//2. The selection must be done by the manager.
+//3. If you win, you can withdraw your winnings using the same withdraw command as in 1.
+
 pragma solidity ^0.4.17;
 
 contract Lottery{
@@ -54,10 +60,11 @@ contract Lottery{
         require(msg.value > 0.001 ether);
         
         // add sender address to the list
+        uint newIndex = playerList.length; // The index of this new person 
         playerList.push(msg.sender);
         
         // create new playerEntry
-        uint newIndex = playerList.length;
+        
         players[msg.sender] = playerEntry(newIndex , msg.value);
     }
     
@@ -130,7 +137,8 @@ contract Lottery{
             
         
         // actually remove the entry
-        delete playerList[playerList.length-1];
+        delete playerList[playerList.length-1]; //sets last value to 0x000000...
+        playerList.length--; //removes that end piece
 
     }
     
