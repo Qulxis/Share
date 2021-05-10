@@ -19,13 +19,14 @@ contract Lottery{
     
     modifier notEntered() {
         // only allow players to enter once
-        require(players[msg.sender].index == ???);
+        require(players[msg.sender].index == 0);
+        require(players[msg.sender].amount == 0);
         _;
     }
     
     modifier hasEntered() {
         // only allow players to enter once
-        require(players[msg.sender].??? != ???);
+        require(players[msg.sender].amount != 0);
         _;
     }
     
@@ -35,6 +36,7 @@ contract Lottery{
     constructor() public{
         managers[msg.sender] = true;
     }
+    
     //Student: Doesn't this make any person a manager by default?
     
     function addManager(address newManager) public onlyManagers {
@@ -55,7 +57,7 @@ contract Lottery{
         playerList.push(msg.sender);
         
         // create new playerEntry
-        newIndex = playerList.length;
+        uint newIndex = playerList.length;
         players[msg.sender] = playerEntry(newIndex , msg.value);
     }
     
@@ -72,7 +74,7 @@ contract Lottery{
         delete players[msg.sender];
         
         // finally, send withdrawn funds to account (good practice to do last)
-        msg.sender.transfer(withdrawAmt);
+        lastWinner.transfer(withdrawAmt);
     }
 
     function pickWinner() public onlyManagers {
@@ -84,7 +86,7 @@ contract Lottery{
         
 
         // transfer all money from lottery contract to the player
-        contractAmnt = address(this).balance
+        uint contractAmnt = address(this).balance;
         players[lastWinner].amount = contractAmnt;
     }
 
@@ -95,8 +97,9 @@ contract Lottery{
     
     function resetLottery() private {
         // clear player mapping
-        for (player in playerList){
-            delete players[player];
+        //
+        for (uint i  = 0; i < playerList.length; i++) { //update for 
+            delete players[playerList[i]];
         }
         
         
@@ -112,31 +115,23 @@ contract Lottery{
         // check that index is not too big
         
         //Student: I changed the variable that's passed in to "indx" so it's not confused with "index" for a player in "players"
-        if (index >= playerList.length) return;
+        if (indx >= playerList.length) return;
 
         // move entries above index down by one
-        //Student: Remove the entries in what down by one?
-    
-        iterator = players.length;
-        for (addy in playerList){
-            if (players[addy].index > indx){
-                players[addy].index = players[addy].indx - 1;
-            }
+        // 1. Get the index of the address from sender, but indx should be that already and is passed in when this is called
+        // 2. Start from this index in array and iterate up to the second to last entry in the array. (Note that the array starts at 0, thus the length is 1 larger than the largest index. 
+        // The less than accounts for this in the for statement, but we need a -1 so it stops before it gets to the last one)
+
+        for (uint i  = indx; i < playerList.length - 1; i++) { 
+            playerList[i] = playerList[i+1]; // 3.set value in each valid entry in array to be the one above
+            players[playerList[i+1]].index = i; // 4.use value "the one above" to access map, and set the index mapped to this address to the correct index (i)
         }
-        }
-        
-        //Student: Right now I am using a counter so each player's index just counts up each time. ie the first player gets the index 1. 
-        //This iteration is meant to decrease the index of any player in "players" by 1.
+
             
         
         // actually remove the entry
-        delete playerList[indx];
-        ???
-        //Student: Remove the entry from what? There's the players AND the playerList but in the function that calls "removeFromLottery", it says that the entry in "players" is removed after "removeFromLottery" is called. 
-        //Thus, I assumed this meant to remove it from the "playerList". However, this function doesn't take the address of the player that needs to be removed, just the index and since
-        //I can't find a way to call the address corresponding to that index (reverse mapping), I don't know how I'm supposed to know what address to remove form "playerList"
-        //
-        //Edit: Ok I think I achieved what I described above in the code, but unsure
+        delete playerList[playerList.length-1];
+
     }
     
     // helper function to find the winner
